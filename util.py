@@ -155,12 +155,15 @@ def normalize_text(text):
 def transform_to_dataset(x_set, y_set):
     X, y = [], []
     for document, topic in tqdm(zip(list(x_set), list(y_set))):
-        document = normalize_text(document)
-        X.append(document.strip())
-        y.append(topic)
-        # Augmentation bằng cách remove dấu tiếng Việt
-        X.append(no_marks(document))
-        y.append(topic)
+        try:
+            document = normalize_text(document)
+            X.append(document.strip())
+            y.append(topic)
+            # Augmentation bằng cách remove dấu tiếng Việt
+            X.append(no_marks(document))
+            y.append(topic)
+        except Exception as e:
+            print("exception: ", document)
     return X, y
 
 
@@ -169,15 +172,5 @@ def transform_text(text):
     no_marks(document.strip())
     return document
 
-
-def make_balance_data(X, y):
-    # only for binary classification
-    all_cls = set(y)
-    max_cls, min_cls = max([y.count(cls) for cls in all_cls]), min([y.count(cls) for cls in all_cls])
-    diff = y.count(max_cls) - y.count(min_cls)
-    data = zip(X, y)
-    data = list(data)
-    np.random.shuffle(data)
-    
     
     

@@ -10,7 +10,15 @@ import pickle
 from util import *
 
 
-train_data = pd.read_json("data/data.json")
+train_path = "data/full_train.csv"
+model_save_path = "model.pkl"
+
+train_data = pd.read_csv(train_path)
+train_data = train_data.dropna()
+# train_neg = train_data[train_data.Rating == 0.0]
+# train_data_pos = train_data[train_data.Rating ==
+#                             1.0].sample(n=len(train_neg), random_state=62)
+# train_data = pd.concat([train_neg, train_data_pos])
 print(train_data.head())
 pos_data = []
 pos_label = []
@@ -30,7 +38,7 @@ for index, row in enumerate(nag_list):
 ############################
 print("Create train/test data...")
 X_train, X_test, y_train, y_test = train_test_split(
-    train_data.Comment, train_data.label, test_size=0.3, random_state=62)
+    train_data.Comment, train_data.Rating, test_size=0.2, random_state=62)
 print("Start transform train data...")
 X_train, y_train = transform_to_dataset(X_train, y_train)
 X_train = X_train + pos_data + neg_data
@@ -52,7 +60,7 @@ clf = Pipeline([('CountVectorizer', CountVectorizer(
 
 print("Start training...")
 clf.fit(X_train, y_train)
-with open('model.pkl', 'wb') as f:
+with open(model_save_path, 'wb') as f:
     pickle.dump(clf, f)
 print("Training done!")
 print("Start testing...")
